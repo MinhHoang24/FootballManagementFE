@@ -1,3 +1,4 @@
+import "antd/dist/reset.css";
 import "./globals.css";
 
 import { cn } from "../lib/utils";
