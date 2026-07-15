@@ -11,7 +11,6 @@ import { SearchOutlined, MoreOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import PlayerModal from "./PlayerModal";
 import PlayerDetailDrawer from "./PlayerDetailDrawer";
-import { Tag } from "antd";
 
 export default function PlayerTable() {
     const [keyword, setKeyword] = useState("");
