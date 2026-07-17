@@ -1,7 +1,7 @@
-export default function AdminFinance() {
+import AdminFinance from "@/src/components/finance/AdminFinance";
+
+export default function AdminFinancePage() {
     return (
-        <div>
-            <span>this is admin finance page</span>
-        </div>
+        <AdminFinance editable />
     )
 }
