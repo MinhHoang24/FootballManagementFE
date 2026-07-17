@@ -1,5 +1,9 @@
 import { Dayjs } from "dayjs";
 
+export type GoalTeam = "OUR" | "OPPONENT";
+
+export type GoalType = "NORMAL" | "OWN_GOAL";
+
 export interface IGetMatchListParams {
     page?: number;
     limit?: number;
@@ -15,37 +19,56 @@ export interface IPlayerRef {
     number: number;
 }
 
-export interface IGoal {
-    scorerPlayerId: IPlayerRef | null;
-    assistPlayerId: IPlayerRef | null;
-}
-
-export interface IGoalInput {
-    scorerPlayerId: string | null;
-    assistPlayerId: string | null;
-}
-
 export interface IScore {
     our: number;
     opponent: number;
 }
 
-export interface IMatchBase {
+export interface IGoal {
+    team: GoalTeam;
+    type: GoalType;
+    minute: number | null;
+    scorerPlayerId: IPlayerRef | null;
+    assistPlayerId: IPlayerRef | null;
+}
+
+export interface IGoalInput {
+    team: GoalTeam;
+    type: GoalType;
+    minute: number | null;
+    scorerPlayerId: string | null;
+    assistPlayerId: string | null;
+    quantity?: number;
+}
+
+export interface IMatch {
+    _id: string;
     season: number;
     opponent: string;
     matchDate: string;
-    score: IScore;
-}
 
-export interface IMatch extends IMatchBase {
-    _id: string;
     goals: IGoal[];
+
+    // Virtual từ backend
+    score: IScore;
+
     createdAt: string;
     updatedAt: string;
 }
 
-export interface ICreateMatchBody extends IMatchBase {
+export interface ICreateMatchBody {
+    season: number;
+    opponent: string;
+    matchDate: string;
+
     goals: IGoalInput[];
+}
+
+export type IUpdateMatchBody = ICreateMatchBody;
+
+export interface IMatchFormValues
+    extends Omit<ICreateMatchBody, "matchDate"> {
+    matchDate: Dayjs;
 }
 
 export interface IGetMatchListResponse {
@@ -67,10 +90,9 @@ export interface IMatchResponse {
 export interface IDeleteMatchResponse {
     success: boolean;
     message: string;
-    data: IMatch;
 }
 
-export interface IMatchFormValues
-    extends Omit<ICreateMatchBody, "matchDate"> {
-    matchDate: Dayjs;
+export interface IGetMatchDetailResponse {
+    success: boolean;
+    data: IMatch;
 }

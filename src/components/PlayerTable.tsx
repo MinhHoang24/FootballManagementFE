@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { deletePlayer, getListPlayers } from "../api/player";
-import { IPlayer } from "../types/player";
-import { Input, Space, Button, Dropdown, MenuProps, message, Modal } from "antd";
+import { IPlayer, TPlayerSortBy } from "../types/player";
+import { Input, Space, Button, Dropdown, MenuProps, message, Modal, Select } from "antd";
 import Table, { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { SorterResult } from "antd/es/table/interface";
 import { SearchOutlined, MoreOutlined } from "@ant-design/icons";
@@ -12,12 +12,47 @@ import { useQueryClient } from "@tanstack/react-query";
 import PlayerModal from "./PlayerModal";
 import PlayerDetailDrawer from "./PlayerDetailDrawer";
 
+const sortableFields: TPlayerSortBy[] = [
+    "name",
+    "number",
+    "position",
+    "shirtSize",
+    "createdAt",
+    "goals",
+    "assists",
+    "ga",
+];
+
+const getTotalStats = (player: IPlayer) => {
+    return (
+        player.seasonStats?.reduce(
+            (acc, stat) => {
+                acc.goals += stat.goals;
+                acc.assists += stat.assists;
+                acc.ga += stat.ga;
+                return acc;
+            },
+            {
+                goals: 0,
+                assists: 0,
+                ga: 0,
+            }
+        ) ?? {
+            goals: 0,
+            assists: 0,
+            ga: 0,
+        }
+    );
+};
+
 export default function PlayerTable() {
+    const [season, setSeason] = useState(2026);
     const [keyword, setKeyword] = useState("");
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const [sortBy, setSortBy] = useState<keyof IPlayer>("createdAt");
+    const [sortBy, setSortBy] =
+        useState<TPlayerSortBy>("createdAt");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
     const [openModal, setOpenModal] = useState(false);
     const [editingPlayer, setEditingPlayer] = useState<IPlayer>();
@@ -26,23 +61,25 @@ export default function PlayerTable() {
     const [selectedPlayerId, setSelectedPlayerId] = useState<string>();
 
     const { data, isFetching } = useQuery({
-        queryKey: [
-            "players",
+    queryKey: [
+        "players",
+        page,
+        pageSize,
+        search,
+        season,
+        sortBy,
+        sortOrder,
+    ],
+    queryFn: () =>
+        getListPlayers({
             page,
-            pageSize,
+            limit: pageSize,
             search,
+            season,
             sortBy,
             sortOrder,
-        ],
-        queryFn: () =>
-            getListPlayers({
-                page,
-                limit: pageSize,
-                search,
-                sortBy,
-                sortOrder,
-            }),
-    });
+        }),
+});
 
     const deleteMutation = useMutation({
         mutationFn: deletePlayer,
@@ -144,6 +181,37 @@ export default function PlayerTable() {
             align: "center",
         },
         {
+            title: "Goals",
+            dataIndex: "goals",
+            key: "goals",
+            sorter: true,
+            width: 100,
+            align: "center",
+            render: (_, record) => getTotalStats(record).goals,
+        },
+        {
+            title: "Assists",
+            dataIndex: "assists",
+            key: "assists",
+            sorter: true,
+            width: 100,
+            align: "center",
+            render: (_, record) => getTotalStats(record).assists,
+        },
+        {
+            title: "G+A",
+            dataIndex: "ga",
+            key: "ga",
+            sorter: true,
+            width: 100,
+            align: "center",
+            render: (_, record) => (
+                <span className="font-semibold text-green-700">
+                    {getTotalStats(record).ga}
+                </span>
+            ),
+        },
+        {
             title: "Action",
             key: "action",
             width: 80,
@@ -191,12 +259,14 @@ export default function PlayerTable() {
         setPage(pagination.current || 1);
         setPageSize(pagination.pageSize || 10);
 
-        if (!Array.isArray(sorter) && sorter.field) {
+        if (!Array.isArray(sorter) && typeof sorter.field === "string") {
             if (!sorter.order) {
                 setSortBy("createdAt");
                 setSortOrder("desc");
-            } else {
-                setSortBy(sorter.field as keyof IPlayer);
+            } else if (
+                sortableFields.includes(sorter.field as TPlayerSortBy)
+            ) {
+                setSortBy(sorter.field as TPlayerSortBy);
                 setSortOrder(sorter.order === "ascend" ? "asc" : "desc");
             }
         }
@@ -210,6 +280,20 @@ export default function PlayerTable() {
         >
             <div className="flex justify-between items-center">
                 <Space.Compact>
+                    <Select
+                        value={season}
+                        style={{ width: 120 }}
+                        onChange={(value) => {
+                            setSeason(value);
+                            setPage(1);
+                        }}
+                        options={[
+                            {
+                                label: "2026",
+                                value: 2026,
+                            },
+                        ]}
+                    />
                     <Input
                         allowClear
                         prefix={<SearchOutlined />}
@@ -267,6 +351,9 @@ export default function PlayerTable() {
                     total: data?.pagination.total ?? 0,
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} players`,
+                }}
+                scroll={{
+                    y: "calc(100vh - 265px)",
                 }}
                 onChange={handleTableChange}
                 rowClassName={() => "cursor-pointer"}

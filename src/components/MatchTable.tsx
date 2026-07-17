@@ -12,6 +12,7 @@ import { IMatch } from "../types/match";
 
 import { SearchOutlined, MoreOutlined } from "@ant-design/icons";
 import MatchModal from "./MatchModal";
+import MatchDetailModal from "./MatchDetailModal";
 
 export default function MatchTable() {
     const [keyword, setKeyword] = useState("");
@@ -285,6 +286,9 @@ export default function MatchTable() {
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} matches`,
                 }}
+                scroll={{
+                    y: "calc(100vh - 265px)",
+                }}
                 onChange={handleTableChange}
                 rowClassName={() => "cursor-pointer"}
                 onRow={(record) => ({
@@ -304,6 +308,15 @@ export default function MatchTable() {
                 }}
                 onSuccess={() => {
                     setEditingMatch(undefined);
+                }}
+            />
+
+            <MatchDetailModal
+                open={openDetail}
+                matchId={selectedMatchId}
+                onClose={() => {
+                    setOpenDetail(false);
+                    setSelectedMatchId(undefined);
                 }}
             />
         </Space>
