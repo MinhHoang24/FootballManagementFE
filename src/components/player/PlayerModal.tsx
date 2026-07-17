@@ -11,8 +11,8 @@ import {
 } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { createPlayer, updatePlayer } from "../api/player";
-import { IPlayer, IPlayerUpdateBody } from "../types/player";
+import { IPlayer, IPlayerUpdateBody } from "@/src/types/player";
+import { createPlayer, updatePlayer } from "@/src/api/player";
 
 interface Props {
     open: boolean;

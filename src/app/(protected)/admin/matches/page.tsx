@@ -1,9 +1,9 @@
-import MatchTable from "@/src/components/MatchTable";
+import MatchTable from "@/src/components/match/MatchTable";
 
 export default function AdminMatch() {
     return (
         <>
-            <MatchTable />
+            <MatchTable isAdmin />
         </>
     )
 }

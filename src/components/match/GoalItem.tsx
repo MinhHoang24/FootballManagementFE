@@ -13,11 +13,11 @@ import type { FormInstance } from "antd";
 
 import {
     IMatchFormValues,
-} from "../types/match";
+} from "../../types/match";
 import {
     isDisableAssist,
     isDisableScorer,
-} from "../helpers/match";
+} from "../../helpers/match";
 
 interface PlayerOption {
     label: string;

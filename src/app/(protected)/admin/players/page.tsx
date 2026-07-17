@@ -1,4 +1,4 @@
-import PlayerTable from "@/src/components/PlayerTable";
+import PlayerTable from "@/src/components/player/PlayerTable";
 
 export default function AdminPlayer() {
     return (

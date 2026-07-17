@@ -3,7 +3,7 @@
 import { Avatar, Card, Descriptions, Drawer, Spin } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
-import { getPlayerDetail } from "../api/player";
+import { getPlayerDetail } from "@/src/api/player";
 
 interface Props {
     open: boolean;

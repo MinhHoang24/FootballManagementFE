@@ -6,18 +6,24 @@ import { Button, Dropdown, Input, MenuProps, message, Modal, Select, Space, Tabl
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import dayjs from "dayjs";
 
-import { deleteMatch, getListMatches } from "../api/match";
+import { deleteMatch, getListMatches } from "../../api/match";
 import { SorterResult } from "antd/es/table/interface";
-import { IMatch } from "../types/match";
+import { IMatch } from "../../types/match";
 
 import { SearchOutlined, MoreOutlined } from "@ant-design/icons";
 import MatchModal from "./MatchModal";
 import MatchDetailModal from "./MatchDetailModal";
 
-export default function MatchTable() {
+interface TMatchTableProps {
+    isAdmin?: boolean;
+}
+
+export default function MatchTable({
+    isAdmin = false,
+}: TMatchTableProps) {
     const [keyword, setKeyword] = useState("");
     const [search, setSearch] = useState("");
-    const [season, setSeason] = useState<number>();
+    const [season, setSeason] = useState<number>(2026);
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -140,7 +146,10 @@ export default function MatchTable() {
                 );
             },
         },
-        {
+    ];
+
+    if (isAdmin) {
+        columns.push({
             title: "Action",
             width: 80,
             align: "center",
@@ -176,8 +185,9 @@ export default function MatchTable() {
                     </div>
                 );
             },
-        },
-    ];
+        });
+    }
+        
 
     const handleTableChange = (
         pagination: TablePaginationConfig,
@@ -261,17 +271,18 @@ export default function MatchTable() {
                         ]}
                     />
                 </Space>
-
-                <Button
-                    type="primary"
-                    className="!bg-green-800 hover:!bg-green-900 !border-green-800 hover:!border-green-900 !text-white"
-                    onClick={() => {
-                        setEditingMatch(undefined);
-                        setOpenModal(true);
-                    }}
-                >
-                    Add Match
-                </Button>
+                {isAdmin && (
+                    <Button
+                        type="primary"
+                        className="!bg-green-800 hover:!bg-green-900 !border-green-800 hover:!border-green-900 !text-white"
+                        onClick={() => {
+                            setEditingMatch(undefined);
+                            setOpenModal(true);
+                        }}
+                    >
+                        Add Match
+                    </Button>
+                )}
             </div>
 
             <Table<IMatch>
@@ -299,17 +310,19 @@ export default function MatchTable() {
                 })}
             />
 
-            <MatchModal
-                open={openModal}
-                match={editingMatch}
-                onClose={() => {
-                    setOpenModal(false);
-                    setEditingMatch(undefined);
-                }}
-                onSuccess={() => {
-                    setEditingMatch(undefined);
-                }}
-            />
+            {isAdmin && (
+                <MatchModal
+                    open={openModal}
+                    match={editingMatch}
+                    onClose={() => {
+                        setOpenModal(false);
+                        setEditingMatch(undefined);
+                    }}
+                    onSuccess={() => {
+                        setEditingMatch(undefined);
+                    }}
+                />
+            )}
 
             <MatchDetailModal
                 open={openDetail}

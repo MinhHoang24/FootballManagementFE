@@ -1,12 +1,12 @@
 "use client";
 
 import { Button, DatePicker, Form, Input, InputNumber, message, Modal, Select, Space } from "antd";
-import { ICreateMatchBody, IGoalInput, IMatch, IMatchFormValues } from "../types/match";
-import { createEmptyGoal, getScore } from "../helpers/match";
+import { ICreateMatchBody, IGoalInput, IMatch, IMatchFormValues } from "../../types/match";
+import { createEmptyGoal, getScore } from "../../helpers/match";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getListPlayers } from "../api/player";
-import { IPlayer } from "../types/player";
-import { createMatch, updateMatch } from "../api/match";
+import { getListPlayers } from "../../api/player";
+import { IPlayer } from "../../types/player";
+import { createMatch, updateMatch } from "../../api/match";
 import { useEffect } from "react";
 import dayjs from "dayjs";
 import {
@@ -186,12 +186,37 @@ export default function MatchModal({
                     ? "Update Match"
                     : "Create Match"
             }
-            footer={null}
+            footer={[
+                <Button
+                    key="cancel" 
+                    onClick={() => {
+                        form.resetFields();
+                        onClose();
+                    }}
+                >
+                    Cancel
+                </Button>,
+                <Button
+                    key="submit"
+                    type="primary"
+                    loading={loading}
+                    className="!border-green-800 !bg-green-800 hover:!border-green-900 hover:!bg-green-900"
+                    onClick={() => form.submit()}
+                >
+                    {match ? "Update" : "Create"}
+                </Button>,
+            ]}
             destroyOnHidden
             width={900}
             onCancel={() => {
                 form.resetFields();
                 onClose();
+            }}
+            styles={{
+                body: {
+                    maxHeight: "calc(100vh - 220px)",
+                    overflowY: "auto",
+                },
             }}
         >
             <Form
@@ -310,27 +335,6 @@ export default function MatchModal({
                         </>
                     )}
                 </Form.List>
-
-                <div className="mt-6 flex justify-end gap-2">
-                    <Button
-                        onClick={() => {
-                            form.resetFields();
-                            onClose();
-                        }}
-                    >
-                        Cancel
-                    </Button>
-
-                    <Button
-                        type="primary"
-                        htmlType="submit"
-                        loading={loading}
-                        className="!border-green-800 !bg-green-800 hover:!border-green-900 hover:!bg-green-900"
-                    >
-                        {match ? "Update" : "Create"}
-                    </Button>
-                </div>
-
             </Form>
         </Modal>
     );

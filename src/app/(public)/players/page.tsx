@@ -1,7 +1,7 @@
+import PlayerTable from "@/src/components/player/PlayerTable";
+
 export default function PlayersPage() {
     return (
-        <div>
-            this is player page
-        </div>
+        <PlayerTable />
     )
 }

@@ -1,7 +1,7 @@
+import MatchTable from "@/src/components/match/MatchTable";
+
 export default function MatchesPage() {
     return (
-        <div>
-            this is match page
-        </div>
+        <MatchTable />
     )
 }

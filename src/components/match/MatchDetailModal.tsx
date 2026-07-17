@@ -10,7 +10,7 @@ import {
     Timeline,
 } from "antd";
 import { useQuery } from "@tanstack/react-query";
-import { getMatchDetail } from "../api/match";
+import { getMatchDetail } from "../../api/match";
 
 interface Props {
     open: boolean;

@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { deletePlayer, getListPlayers } from "../api/player";
-import { IPlayer, TPlayerSortBy } from "../types/player";
 import { Input, Space, Button, Dropdown, MenuProps, message, Modal, Select } from "antd";
 import Table, { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { SorterResult } from "antd/es/table/interface";
@@ -11,6 +9,8 @@ import { SearchOutlined, MoreOutlined } from "@ant-design/icons";
 import { useQueryClient } from "@tanstack/react-query";
 import PlayerModal from "./PlayerModal";
 import PlayerDetailDrawer from "./PlayerDetailDrawer";
+import { IPlayer, TPlayerSortBy } from "@/src/types/player";
+import { deletePlayer, getListPlayers } from "@/src/api/player";
 
 const sortableFields: TPlayerSortBy[] = [
     "name",
@@ -45,7 +45,13 @@ const getTotalStats = (player: IPlayer) => {
     );
 };
 
-export default function PlayerTable() {
+interface Props {
+    isAdmin?: boolean;
+}
+
+export default function PlayerTable({
+    isAdmin = false,
+}: Props) {
     const [season, setSeason] = useState(2026);
     const [keyword, setKeyword] = useState("");
     const [search, setSearch] = useState("");
@@ -210,8 +216,11 @@ export default function PlayerTable() {
                     {getTotalStats(record).ga}
                 </span>
             ),
-        },
-        {
+        }
+    ];
+
+    if (isAdmin) {
+        columns.push({
             title: "Action",
             key: "action",
             width: 80,
@@ -248,8 +257,8 @@ export default function PlayerTable() {
                     </div>
                 );
             },
-        },
-    ];
+        });
+    }
 
     const handleTableChange = (
         pagination: TablePaginationConfig,
@@ -327,17 +336,19 @@ export default function PlayerTable() {
                         Search
                     </Button>
                 </Space.Compact>
-
-                <Button
-                    className="!bg-green-800 hover:!bg-green-900 !border-green-800 hover:!border-green-900 !text-white"
-                    type="primary"
-                    onClick={() => {
-                        setEditingPlayer(undefined);
-                        setOpenModal(true);
-                    }}
-                >
-                    Add Player
-                </Button>
+                    
+                {isAdmin && (
+                    <Button
+                        className="!bg-green-800 hover:!bg-green-900 !border-green-800 hover:!border-green-900 !text-white"
+                        type="primary"
+                        onClick={() => {
+                            setEditingPlayer(undefined);
+                            setOpenModal(true);
+                        }}
+                    >
+                        Add Player
+                    </Button>
+                )}
             </div>
 
             <Table<IPlayer>
@@ -374,19 +385,21 @@ export default function PlayerTable() {
                 }}
             />
 
-            <PlayerModal
-                open={openModal}
-                player={editingPlayer}
-                onClose={() => {
-                    setOpenModal(false);
-                    setEditingPlayer(undefined);
-                }}
-                onSuccess={() => {
-                    queryClient.invalidateQueries({
-                        queryKey: ["players"],
-                    });
-                }}
-            />
+            {isAdmin && (
+                <PlayerModal
+                    open={openModal}
+                    player={editingPlayer}
+                    onClose={() => {
+                        setOpenModal(false);
+                        setEditingPlayer(undefined);
+                    }}
+                    onSuccess={() => {
+                        queryClient.invalidateQueries({
+                            queryKey: ["players"],
+                        });
+                    }}
+                />
+            )}
         </Space>
     );
 }
